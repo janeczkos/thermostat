@@ -19,52 +19,79 @@
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/usart.h>
+
+static void clock_setup(void)
+{
+	rcc_clock_setup_in_hse_8mhz_out_72mhz();
+	//led gpio clock
+	rcc_periph_clock_enable(RCC_GPIOC);
+	//usart gpio clock
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_USART2);
+}
+
+static void usart_setup(void)
+{
+        /* Setup GPIO pin GPIO_USART2_TX. */
+        gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+                      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART2_TX);
+
+        /* Setup UART parameters. */
+        usart_set_baudrate(USART2, 115200);
+        usart_set_databits(USART2, 8);
+        usart_set_stopbits(USART2, USART_STOPBITS_1);
+        usart_set_mode(USART2, USART_MODE_TX);
+        usart_set_parity(USART2, USART_PARITY_NONE);
+        usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
+
+        /* Finally enable the USART. */
+        usart_enable(USART2);
+}
+
+static void my_usart_print_int(uint32_t usart, int value)
+{
+        int8_t i;
+        uint8_t nr_digits = 0;
+        char buffer[25];
+
+        if (value < 0) {
+                usart_send_blocking(usart, '-');
+                value = value * -1;
+        }
+
+        while (value > 0) {
+                buffer[nr_digits++] = "0123456789"[value % 10];
+                value /= 10;
+        }
+
+        for (i = nr_digits-1; i >= 0; i--)
+                usart_send_blocking(usart, buffer[i]);
+}
 
 static void gpio_setup(void)
 {
-	/* Enable GPIOA clock. */
-	/* Manually: */
-	// RCC_APB2ENR |= RCC_APB2ENR_IOPCEN;
-	/* Using API functions: */
-	rcc_periph_clock_enable(RCC_GPIOC);
-
-	/* Set GPIO5 (in GPIO port A) to 'output push-pull'. */
-	/* Manually: */
-	// GPIOA_CRH = (GPIO_CNF_OUTPUT_PUSHPULL << (((5 - 8) * 4) + 2));
-	// GPIOA_CRH |= (GPIO_MODE_OUTPUT_2_MHZ << ((5 - 8) * 4));
-	/* Using API functions: */
+	//led gpio
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
 }
 
 int main(void)
 {
-	int i;
+	int i, c = 0;
 
+	clock_setup();
+	usart_setup();
 	gpio_setup();
 
-	/* Blink the LED (PA5) on the board. */
 	while (1) {
-		/* Manually: */
-		// GPIOA_BSRR = GPIO5;		/* LED off */
-		// for (i = 0; i < 800000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
-		// GPIOA_BRR = GPIO5;		/* LED on */
-		// for (i = 0; i < 800000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
-
-		/* Using API functions gpio_set()/gpio_clear(): */
-		// gpio_set(GPIOA, GPIO5);	/* LED off */
-		// for (i = 0; i < 800000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
-		// gpio_clear(GPIOA, GPIO5);	/* LED on */
-		// for (i = 0; i < 800000; i++)	/* Wait a bit. */
-		// 	__asm__("nop");
-
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOC, GPIO13);	/* LED on/off */
-		for (i = 0; i < 800000; i++)	/* Wait a bit. */
-			__asm__("nop");
+		my_usart_print_int(USART2,c++);
+		usart_send_blocking(USART2, '\r');
+                usart_send_blocking(USART2, '\n');
+                for (i = 0; i < 4000000; i++)   /* Wait a bit. */
+                        __asm__("nop");
 	}
 
 	return 0;
