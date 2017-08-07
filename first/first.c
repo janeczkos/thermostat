@@ -20,6 +20,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
+#include "onewire.h"
 
 static void clock_setup(void)
 {
@@ -29,6 +30,7 @@ static void clock_setup(void)
 	//usart gpio clock
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_USART1);
 }
 
 static void usart_setup(void)
@@ -47,6 +49,25 @@ static void usart_setup(void)
 
         /* Finally enable the USART. */
         usart_enable(USART2);
+}
+static void ow_usart_setup(void)
+{
+        /* Setup GPIO pin GPIO_USART2_TX. */
+        gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+                      GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
+	gpio_set_mode(GPIOA, GPIO_MODE_INPUT,
+                      GPIO_CNF_INPUT_FLOAT, GPIO_USART1_RX);
+
+        /* Setup UART parameters. */
+        usart_set_baudrate(USART1, 115200);
+        usart_set_databits(USART1, 8);
+        usart_set_stopbits(USART1, USART_STOPBITS_1);
+        usart_set_mode(USART1, USART_MODE_TX_RX);
+        usart_set_parity(USART1, USART_PARITY_NONE);
+        usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
+
+        /* Finally enable the USART. */
+        usart_enable(USART1);
 }
 
 static void my_usart_print_int(uint32_t usart, int value)
@@ -79,10 +100,12 @@ static void gpio_setup(void)
 int main(void)
 {
 	int i, c = 0;
+ 	uint8_t temperature[2];	
 
 	clock_setup();
 	usart_setup();
 	gpio_setup();
+	ow_usart_setup();
 
 	while (1) {
 		/* Using API function gpio_toggle(): */
@@ -90,8 +113,18 @@ int main(void)
 		my_usart_print_int(USART2,c++);
 		usart_send_blocking(USART2, '\r');
                 usart_send_blocking(USART2, '\n');
-                for (i = 0; i < 4000000; i++)   /* Wait a bit. */
+
+		if ( OW_CheckPresence() ) {
+                        OW_MeasureTemp();
+                }
+
+                for (i = 0; i < 8000000; i++)   /* Wait a bit. */
                         __asm__("nop");
+                for (i = 0; i < 8000000; i++)   /* Wait a bit. */
+                        __asm__("nop");
+		if ( OW_CheckPresence() ) {
+                        OW_ReadTemp( temperature );
+                }
 	}
 
 	return 0;
