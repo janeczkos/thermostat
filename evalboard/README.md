@@ -1,7 +1,13 @@
 # README
 
-This is the smallest-possible example program using libopencm3.
+Thermostat build upon blue pill:
 
-It's intended for the ST STM32-based
-[Leaf Labs Maple board](http://leaflabs.com).
-It should blink the LED on the board.
+http://wiki.stm32duino.com/index.php?title=Blue_Pill
+
+USART1 : one wire interface to ds18b20
+
+USART2 : serial out for debug
+
+USART3 : rs485 connection
+
+
