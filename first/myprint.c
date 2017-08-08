@@ -1,12 +1,23 @@
 #include "myprint.h"
 
-void UsartPutnumber(uint32_t liczba)
+void my_usart_print_int(uint32_t usart, int value)
 {
-        uint8_t setki,dziesiatki;
-        setki=liczba/100;
-        dziesiatki=(liczba-100*setki)/10;
-        usart_send_blocking( USART2, dziesiatki+0x30);
-        usart_send_blocking( USART2, liczba-100*setki-10*dziesiatki+0x30);
+        int8_t i;
+        uint8_t nr_digits = 0;
+        char buffer[25];
+
+        if (value < 0) {
+                usart_send_blocking(usart, '-');
+                value = value * -1;
+        }
+
+        while (value > 0) {
+                buffer[nr_digits++] = "0123456789"[value % 10];
+                value /= 10;
+        }
+
+        for (i = nr_digits-1; i >= 0; i--)
+                usart_send_blocking(usart, buffer[i]);
 }
 
 void debug_print4( unsigned char data )

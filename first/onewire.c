@@ -28,10 +28,10 @@ void OW_ReadTemp( uint8_t *temp )
 	}
 	
 	usart_snd_str("\n\rtemperature: ");
-	UsartPutnumber( temp[0]);
+	my_usart_print_int( USART2, temp[0] );
 	usart_snd_str(",");
 	if ( temp[1] > 1  ) {
-		UsartPutnumber( (temp[1]*625)/100 );
+		my_usart_print_int( USART2, (temp[1]*625)/100 );
 	} else {
 		usart_send_blocking( USART2, '0');
 		usart_send_blocking( USART2, '0');
@@ -41,13 +41,9 @@ void OW_ReadTemp( uint8_t *temp )
 uint32_t OW_CheckPresence( void )
 {
 	int32_t temp= 0;
-//	USART3->BRR = F_CPU/9600;
 	usart_set_baudrate( USART1, 9600 );
-	//usart3_snd(0xf0);
 	usart_send_blocking( USART1, 0xf0 );
-	//temp = usart3_rec();
 	temp = usart_recv_blocking( USART1 );
-	//USART3->BRR = F_CPU/115200;
 	usart_set_baudrate( USART1, 115200 );
 	if ( temp < 0xf0 ) {
 		return 1;

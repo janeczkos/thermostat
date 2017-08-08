@@ -1,6 +1,6 @@
 #include <libopencm3/stm32/usart.h>
 
-void UsartPutnumber(uint32_t liczba);
+void my_usart_print_int(uint32_t usart, int value);
 
 void debug_print32(uint32_t data);
 void debug_print16(uint16_t data);

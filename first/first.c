@@ -70,25 +70,6 @@ static void ow_usart_setup(void)
         usart_enable(USART1);
 }
 
-static void my_usart_print_int(uint32_t usart, int value)
-{
-        int8_t i;
-        uint8_t nr_digits = 0;
-        char buffer[25];
-
-        if (value < 0) {
-                usart_send_blocking(usart, '-');
-                value = value * -1;
-        }
-
-        while (value > 0) {
-                buffer[nr_digits++] = "0123456789"[value % 10];
-                value /= 10;
-        }
-
-        for (i = nr_digits-1; i >= 0; i--)
-                usart_send_blocking(usart, buffer[i]);
-}
 
 static void gpio_setup(void)
 {
