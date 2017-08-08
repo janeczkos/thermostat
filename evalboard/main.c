@@ -91,9 +91,9 @@ int main(void)
 	while (1) {
 		/* Using API function gpio_toggle(): */
 		gpio_toggle(GPIOC, GPIO13);	/* LED on/off */
-		my_usart_print_int(USART2,c++);
-		usart_send_blocking(USART2, '\r');
-                usart_send_blocking(USART2, '\n');
+		DebugPrintDecimal( USART2, c++ );
+		usart_send_blocking( USART2, '\r' );
+                usart_send_blocking( USART2, '\n' );
 
 		if ( OW_CheckPresence() ) {
                         OW_MeasureTemp();

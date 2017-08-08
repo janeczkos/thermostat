@@ -1,9 +1,9 @@
 #include "myprint.h"
 
-void my_usart_print_int(uint32_t usart, int value)
+void DebugPrintDecimal( uint32_t usart, int value )
 {
         int8_t i;
-        uint8_t nr_digits = 0;
+        uint8_t nrDigits = 0;
         char buffer[25];
 
         if (value < 0) {
@@ -12,42 +12,42 @@ void my_usart_print_int(uint32_t usart, int value)
         }
 
         while (value > 0) {
-                buffer[nr_digits++] = "0123456789"[value % 10];
+                buffer[nrDigits++] = "0123456789"[value % 10];
                 value /= 10;
         }
 
-        for (i = nr_digits-1; i >= 0; i--)
-                usart_send_blocking(usart, buffer[i]);
+        for (i = nrDigits-1; i >= 0; i--)
+                usart_send_blocking( usart, buffer[i] );
 }
 
-void debug_print4( unsigned char data )
+void DebugPrintHex4( uint32_t usart, unsigned char data )
 {
 	unsigned char character = data & 0x0f;
-	if (character > 9) {
+	if ( character > 9 ) {
 		character += 'A' - 10;
 	} else {
 		character += '0';
 	}
 
-	usart_send_blocking( USART2, character );
+	usart_send_blocking( usart, character );
 }
 
-void debug_print8(uint8_t data)
+void DebugPrintHex8( uint32_t usart, uint8_t data )
 {
-	debug_print4(data >> 4);
-	debug_print4(data);
+	DebugPrintHex4( usart, data >> 4 );
+	DebugPrintHex4( usart, data );
 }
 
-void debug_print16(uint16_t data)
+void DebugPrintHex16( uint32_t usart, uint16_t data )
 {
-	debug_print8((uint8_t)(data >> 8));
-	debug_print8((uint8_t)data);
+	DebugPrintHex8( usart, (uint8_t)(data >> 8) );
+	DebugPrintHex8( usart, (uint8_t)data );
 }
 
-void debug_print32(uint32_t data)
+void DebugPrintHex32( uint32_t usart, uint32_t data )
 {
-	debug_print16((uint16_t)(data >> 16));
-	debug_print16((uint16_t)data);
+	DebugPrintHex16( usart, (uint16_t)(data >> 16) );
+	DebugPrintHex16( usart, (uint16_t)data );
 }
 
 /**
@@ -55,10 +55,11 @@ void debug_print32(uint32_t data)
  *
  * @param[in]		str to send
  */
-void usart_snd_str(char *str) {
+void DebugPrintStr( uint32_t usart, char *str ) 
+{
     int   i = 0;
 
     while(str[i] != 0) {
-        usart_send_blocking( USART2, str[i++]);
+        usart_send_blocking( usart, str[i++]);
     }
 }

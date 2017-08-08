@@ -21,17 +21,17 @@ void OW_ReadTemp( uint8_t *temp )
 	//temp[0] = rom[0]>>1;
 	//if ( rom[0] & 1 ) temp[1] = 5;
 	//else temp[1] = 0;
-	usart_snd_str("\n\rrom: ");
+	DebugPrintStr( USART2, "\n\rrom: ");
 	for ( i = 0; i < 9; i++ ) {
-		debug_print8(rom[i]);
+		DebugPrintHex8( USART2, rom[i] );
 		usart_send_blocking( USART2, ',');
 	}
 	
-	usart_snd_str("\n\rtemperature: ");
-	my_usart_print_int( USART2, temp[0] );
-	usart_snd_str(",");
+	DebugPrintStr( USART2, "\n\rtemperature: ");
+	DebugPrintDecimal( USART2, temp[0] );
+	DebugPrintStr( USART2, ",");
 	if ( temp[1] > 1  ) {
-		my_usart_print_int( USART2, (temp[1]*625)/100 );
+		DebugPrintDecimal( USART2, (temp[1]*625)/100 );
 	} else {
 		usart_send_blocking( USART2, '0');
 		usart_send_blocking( USART2, '0');
