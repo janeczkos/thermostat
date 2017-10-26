@@ -27,6 +27,7 @@
 #include "onewire.h"
 #include "myprint.h"
 #include "config.h"
+#include "pcd8544f1.h"
 
 int main(void)
 {
@@ -40,7 +41,8 @@ int main(void)
 	gpio_setup();
 	ow_usart_setup();
     encoder_setup();
-
+    lcd_init();
+    lcd_reset();
 	while (1) {
 		/* Using API function gpio_toggle(): */
                 
@@ -50,6 +52,7 @@ int main(void)
             pos = timer_get_counter(TIM4);
             printf("fancy printf: %d\r\n",pos);
             old_pos = pos;
+            lcd_send_data(0xff);
         }
 		/*if ( OW_CheckPresence() ) {
                         OW_MeasureTemp();
