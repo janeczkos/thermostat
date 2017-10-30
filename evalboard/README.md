@@ -13,14 +13,20 @@ USART3 : rs485 connection
 How to compile:
 
 git clone https://github.com/janeczkos/thermostat.git
+
 cd thermostat
+
 git submodule init
+
 git submodule update
+
 cd libopencm3
+
 //Compiling libraries only for fresh start
 make -j4
 
 cd ../evalboard
+
 //Compiling actual program every time you change something
 make
 

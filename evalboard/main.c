@@ -29,12 +29,17 @@
 #include "config.h"
 #include "pcd8544f1.h"
 
+//extern uint32_t button_pressed;
+
 int main(void)
 {
-	int i, c = 0;
+//	int i, c = 0;
  	uint8_t temperature[2];	
     uint32_t pos = 0;
     uint32_t old_pos = 0;
+    uint16_t button = 0;
+    uint16_t old_button = 0;
+    uint32_t old_button_pressed = 0;
 
 	clock_setup();
 	usart_setup();
@@ -47,12 +52,23 @@ int main(void)
 		/* Using API function gpio_toggle(): */
                 
         pos = timer_get_counter(TIM4);
+        button = gpio_get( GPIOA, GPIO1 );
+        if ( button != old_button ) {
+            printf("button pressed: %d\r\n",button);
+            old_button = button;
+        }
         if ( pos != old_pos ) { 
             gpio_toggle(GPIOC, GPIO13);	/* LED on/off */
             pos = timer_get_counter(TIM4);
             printf("fancy printf: %d\r\n",pos);
             old_pos = pos;
             lcd_send_data(0xff);
+        }
+        
+        if ( button_pressed != old_button_pressed ) {
+            printf("button irq counter: %d\r\n",button_pressed);
+            old_button_pressed = button_pressed;
+            lcd_reset();
         }
 		/*if ( OW_CheckPresence() ) {
                         OW_MeasureTemp();

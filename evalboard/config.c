@@ -2,6 +2,9 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
+#include <libopencm3/stm32/f1/nvic.h>
+#include <libopencm3/stm32/f1/exti.h>
+
 #include "config.h"
 
 void clock_setup(void)
@@ -63,9 +66,24 @@ void gpio_setup(void)
     //led gpio
     gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ,
               GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
+    //encoder button
+    gpio_set_mode(GPIOA, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO1);
+    nvic_enable_irq(BUTTON_NVIC);
+    exti_select_source(BUTTON_EXTI, BUTTON_PORT);
+    exti_set_trigger(BUTTON_EXTI, EXTI_TRIGGER_FALLING);
+    exti_enable_request(BUTTON_EXTI);
 }
 
-void encoder_setup(void)
+volatile uint32_t button_pressed = 0;
+
+void exti1_isr(void)
+{
+    exti_reset_request(EXTI1);
+    button_pressed++;
+      
+}
+
+encoder_setup(void)
 {
         // Use PB6 + PB7 for encoder input (5v)
         gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO_TIM4_CH1 );
