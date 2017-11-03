@@ -9,5 +9,6 @@ void lcd_init(void);
 void lcd_reset(void);
 void lcd_send_command(uint8_t command);
 void lcd_send_data(uint8_t data);
+void lcd_putChar( uint8_t ch );
 
 #endif /* PCD8544F1_H */

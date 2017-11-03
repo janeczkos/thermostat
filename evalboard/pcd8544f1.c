@@ -1,5 +1,5 @@
 #include "pcd8544f1.h"
-
+#include "font.h"
 
 void lcd_init(void)
 {
@@ -66,6 +66,17 @@ void lcd_reset()
 			lcd_send_data(0x00);
 		}
 	}
+}
+
+void lcd_putChar( uint8_t ch )
+{
+    uint32_t i;
+    
+    for ( i = 0; i < 5; i++ )
+    {
+       lcd_send_data( FontLookup[ch - 32][i] );
+    }
+    lcd_send_data( 0x00 ); 
 }
 
 void lcd_send_command(uint8_t command) 

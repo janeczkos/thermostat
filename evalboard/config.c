@@ -83,7 +83,9 @@ void exti1_isr(void)
       
 }
 
-encoder_setup(void)
+
+
+void encoder_setup(void)
 {
         // Use PB6 + PB7 for encoder input (5v)
         gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, GPIO_TIM4_CH1 );

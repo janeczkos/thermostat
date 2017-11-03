@@ -30,6 +30,7 @@
 #include "pcd8544f1.h"
 
 //extern uint32_t button_pressed;
+static void printLine( uint32_t line_number, char *str );
 
 int main(void)
 {
@@ -40,6 +41,7 @@ int main(void)
     uint16_t button = 0;
     uint16_t old_button = 0;
     uint32_t old_button_pressed = 0;
+    char buffer[32];
 
 	clock_setup();
 	usart_setup();
@@ -48,6 +50,8 @@ int main(void)
     encoder_setup();
     lcd_init();
     lcd_reset();
+    printLine( 0, "  Thermostat");
+
 	while (1) {
 		/* Using API function gpio_toggle(): */
                 
@@ -61,14 +65,20 @@ int main(void)
             gpio_toggle(GPIOC, GPIO13);	/* LED on/off */
             pos = timer_get_counter(TIM4);
             printf("fancy printf: %d\r\n",pos);
+            sprintf( buffer, "              ",pos);
+            printLine( 1, buffer );
+            sprintf( buffer, "encoder:%d",pos);
+            printLine( 1, buffer );
             old_pos = pos;
-            lcd_send_data(0xff);
         }
         
         if ( button_pressed != old_button_pressed ) {
             printf("button irq counter: %d\r\n",button_pressed);
+            sprintf( buffer, "          ");
+            printLine( 2, buffer );
+            sprintf( buffer, "irq count:%d",button_pressed);
+            printLine( 2, buffer );
             old_button_pressed = button_pressed;
-            lcd_reset();
         }
 		/*if ( OW_CheckPresence() ) {
                         OW_MeasureTemp();
@@ -84,4 +94,16 @@ int main(void)
 	}
 
 	return 0;
+}
+
+static void printLine( uint32_t line_number, char *str ){
+    
+    char *p = str; 
+    lcd_send_command( 0x80 );
+    lcd_send_command( 0x40 | line_number );
+
+    while ( *p != 0 ) {
+        lcd_putChar( *p );
+        p++;
+    } 
 }
