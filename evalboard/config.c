@@ -2,6 +2,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
+#include <libopencm3/stm32/i2c.h>
 #include <libopencm3/stm32/f1/nvic.h>
 #include <libopencm3/stm32/f1/exti.h>
 
@@ -19,7 +20,47 @@ void clock_setup(void)
     rcc_periph_clock_enable(RCC_USART1);
     rcc_periph_clock_enable(RCC_AFIO);
     rcc_periph_clock_enable(RCC_TIM4);
+    //i2c clock
+    rcc_periph_clock_enable(RCC_GPIOB);
+    rcc_periph_clock_enable(RCC_I2C1);
+    rcc_periph_clock_enable(RCC_AFIO);}
 
+void i2c_setup(void)
+{
+
+	AFIO_MAPR |= AFIO_MAPR_I2C1_REMAP;
+	/* Set alternate functions for the SCL and SDA pins of I2C2. */
+	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+		      GPIO_CNF_OUTPUT_ALTFN_OPENDRAIN,
+		      GPIO_I2C1_RE_SCL | GPIO_I2C1_RE_SDA);
+
+	/* Disable the I2C before changing any configuration. */
+	i2c_peripheral_disable(I2C1);
+
+
+
+	/* APB1 is running at 36MHz. */
+	i2c_set_clock_frequency(I2C1, I2C_CR2_FREQ_36MHZ);
+
+	/* 100KHz - I2C Standard Mode */
+	i2c_set_standard_mode(I2C1);
+
+	/*
+	 * fclock for I2C is 36MHz APB2 -> cycle time 28ns, low time at 400kHz
+	 * incl trise -> Thigh = 1600ns; CCR = tlow/tcycle = 0x1C,9;
+	 * Datasheet suggests 0x1e.
+	 */
+	//i2c_set_ccr(I2C1, 0x1e);
+
+	/*
+	 * fclock for I2C is 36MHz -> cycle time 28ns, rise time for
+	 * 400kHz => 300ns and 100kHz => 1000ns; 300ns/28ns = 10;
+	 * Incremented by 1 -> 11.
+	 */
+	//i2c_set_trise(I2C1, 0x0b);
+
+	/* If everything is configured -> enable the peripheral. */
+	i2c_peripheral_enable(I2C1);
 }
 
 void usart_setup(void)
