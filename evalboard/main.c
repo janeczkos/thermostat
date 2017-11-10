@@ -23,11 +23,13 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
+#include <libopencm3/stm32/i2c.h>
 
 #include "onewire.h"
 #include "myprint.h"
 #include "config.h"
 #include "pcd8544f1.h"
+#include "tmp102regs.h"
 
 //extern uint32_t button_pressed;
 static void printLine( uint32_t line_number, char *str );
@@ -42,10 +44,12 @@ int main(void)
     uint16_t old_button = 0;
     uint32_t old_button_pressed = 0;
     char buffer[32];
+    uint8_t iTempData[2], iCmd2Send;
 
 	clock_setup();
 	usart_setup();
 	gpio_setup();
+	i2c_setup();
 	ow_usart_setup();
     encoder_setup();
     lcd_init();
@@ -54,7 +58,9 @@ int main(void)
 
 	while (1) {
 		/* Using API function gpio_toggle(): */
-                
+               iCmd2Send = TMP102_TEMP_REG;
+	       i2c_transfer7(I2C1, TMP102_ADDR, &iCmd2Send, 1, iTempData, 1);
+	       printf( "data was: %d %d", iTempData[0], iTempData[1] );
         pos = timer_get_counter(TIM4);
         button = gpio_get( GPIOA, GPIO1 );
         if ( button != old_button ) {

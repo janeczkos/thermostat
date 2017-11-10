@@ -10,6 +10,7 @@
 extern volatile uint32_t button_pressed;
 
 void clock_setup(void);
+void i2c_setup(void);
 void usart_setup(void);
 void ow_usart_setup(void);
 void gpio_setup(void);
