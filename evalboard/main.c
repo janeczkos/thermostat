@@ -54,13 +54,11 @@ int main(void)
     encoder_setup();
     lcd_init();
     lcd_reset();
+    
     printLine( 0, "  Thermostat");
 
 	while (1) {
 		/* Using API function gpio_toggle(): */
-               iCmd2Send = TMP102_TEMP_REG;
-	       i2c_transfer7(I2C1, TMP102_ADDR, &iCmd2Send, 1, iTempData, 1);
-	       printf( "data was: %d %d", iTempData[0], iTempData[1] );
         pos = timer_get_counter(TIM4);
         button = gpio_get( GPIOA, GPIO1 );
         if ( button != old_button ) {
@@ -85,6 +83,8 @@ int main(void)
             sprintf( buffer, "irq count:%d",button_pressed);
             printLine( 2, buffer );
             old_button_pressed = button_pressed;
+            
+            getTemp_bmp180( temperature );
         }
 		/*if ( OW_CheckPresence() ) {
                         OW_MeasureTemp();

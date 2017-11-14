@@ -37,8 +37,6 @@ void i2c_setup(void)
 	/* Disable the I2C before changing any configuration. */
 	i2c_peripheral_disable(I2C1);
 
-
-
 	/* APB1 is running at 36MHz. */
 	i2c_set_clock_frequency(I2C1, I2C_CR2_FREQ_36MHZ);
 
@@ -50,14 +48,14 @@ void i2c_setup(void)
 	 * incl trise -> Thigh = 1600ns; CCR = tlow/tcycle = 0x1C,9;
 	 * Datasheet suggests 0x1e.
 	 */
-	//i2c_set_ccr(I2C1, 0x1e);
+	i2c_set_ccr(I2C1, 0x1e);
 
 	/*
 	 * fclock for I2C is 36MHz -> cycle time 28ns, rise time for
 	 * 400kHz => 300ns and 100kHz => 1000ns; 300ns/28ns = 10;
 	 * Incremented by 1 -> 11.
 	 */
-	//i2c_set_trise(I2C1, 0x0b);
+	i2c_set_trise(I2C1, 0x0b);
 
 	/* If everything is configured -> enable the peripheral. */
 	i2c_peripheral_enable(I2C1);
