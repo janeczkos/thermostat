@@ -30,6 +30,6 @@
 
 void getTemp_bmp180( uint8_t *pTemperature );
 void getTemp_tmp102( uint8_t *pTemperature );
-
+void getTemperature( uint8_t *pTemperature );
 #endif /*_TEMPERATURE_H_ */
 
