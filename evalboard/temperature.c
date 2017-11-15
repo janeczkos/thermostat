@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "temperature.h"
+#include "config.h"
 
 void getTemp_tmp102( uint8_t *pTemperature )
 {
@@ -110,5 +111,16 @@ void getTemp_bmp180( uint8_t *pTemperature )
 	
 	pTemperature[0] = t/10;
 	pTemperature[1] = t%10;
+}
+
+void getTemperature( uint8_t *pTemperature )
+{
+#if defined(USING_TMP102)
+	getTemp_tmp102( pTemperature );
+#elif defined(USING_BMP180)
+	getTemp_bmp180( pTemperature );
+#else
+	#error Temperature sensor not chosen !
+#endif 
 }
 

@@ -84,7 +84,7 @@ int main(void)
             printLine( 2, buffer );
             old_button_pressed = button_pressed;
             
-            getTemp_bmp180( temperature );
+            getTemperature( temperature );
         }
 		/*if ( OW_CheckPresence() ) {
                         OW_MeasureTemp();

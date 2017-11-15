@@ -7,6 +7,8 @@
 #define BUTTON_isr  exti1_isr
 #define BUTTON_NVIC NVIC_EXTI1_IRQ
 
+#define USING_BMP180
+
 extern volatile uint32_t button_pressed;
 
 void clock_setup(void);
