@@ -9,6 +9,8 @@
 
 #define USING_BMP180
 
+#define USING_DOGM
+
 extern volatile uint32_t button_pressed;
 
 void clock_setup(void);
@@ -17,5 +19,8 @@ void usart_setup(void);
 void ow_usart_setup(void);
 void gpio_setup(void);
 void encoder_setup(void);
+void spi_setup(void);
+void lcd_setup(void);
+void printLine( uint32_t line_number, char *str );
 
 #endif /*_CONFIG_H_ */

@@ -22,7 +22,7 @@ BINARY = main
 OPENCM3_DIR=../libopencm3
 LDSCRIPT = $(OPENCM3_DIR)/lib/stm32/f1/stm32f103x8.ld
 
-OBJS = myprint.o onewire.o config.o pcd8544f1.o temperature.o
+OBJS = myprint.o onewire.o config.o pcd8544f1.o temperature.o dogm128.o
 
 
 include ../libopencm3.target.mk

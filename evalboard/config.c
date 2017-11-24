@@ -7,6 +7,7 @@
 #include <libopencm3/stm32/f1/exti.h>
 
 #include "config.h"
+#include "dogm128.h"
 
 void clock_setup(void)
 {
@@ -77,6 +78,82 @@ void usart_setup(void)
 
         /* Finally enable the USART. */
         usart_enable(USART2);
+}
+
+void spi_setup(void)
+{
+	rcc_periph_clock_enable(RCC_SPI1);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
+
+    /* DC of Nokia 5510 or A0 in DOGM*/
+    gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+            GPIO_CNF_OUTPUT_PUSHPULL, GPIO13);
+    /* Reset for lcds */
+    gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ,
+            GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
+
+    /* SPI1 clock and MOSI and NSS(CS1) */
+    gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO4);
+    gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO5);
+    gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ,
+            GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO7);
+
+    spi_set_unidirectional_mode(SPI1); /* We want to send only. */
+    spi_disable_crc(SPI1); /* No CRC for this slave. */
+    spi_set_dff_8bit(SPI1); /* 8-bit dataword-length */
+    spi_set_full_duplex_mode(SPI1); /* Not receive-only */
+    /* We want to handle the CS signal in software. */
+    spi_enable_software_slave_management(SPI1);
+    spi_set_nss_high(SPI1);
+    /* PCLOCK/256 as clock. */
+#if defined(USING_DOGM)
+	spi_set_baudrate_prescaler(SPI1, SPI_CR1_BR_FPCLK_DIV_256);
+	
+#elif defined(USING_NOKIA)
+	spi_set_baudrate_prescaler(SPI1, SPI_CR1_BR_FPCLK_DIV_16);
+	
+#else
+#error LCD not chosen !
+#endif 
+
+    /* We want to control everything and generate the clock -> master. */
+    spi_set_master_mode(SPI1);
+    spi_set_clock_polarity_1(SPI1); /* SCK idle state high. */
+    /* Bit is taken on the second (rising edge) of SCK. */
+    spi_set_clock_phase_1(SPI1);
+    spi_enable_ss_output(SPI1);
+    spi_enable(SPI1);
+}
+void printLine( uint32_t line_number, char *str )
+{
+	#if defined(USING_DOGM)
+	dogm_printLine( line_number, str );
+	
+#elif defined(USING_NOKIA)
+	nokia_printLine( line_number, str );
+	
+#else
+#error LCD not chosen !
+#endif 
+}
+void lcd_setup()
+{
+	#if defined(USING_DOGM)
+	spi_setup();
+	dogm128_init();
+    dogm128_clear();
+
+	
+#elif defined(USING_NOKIA)
+	  lcd_init();
+	lcd_reset();
+	
+#else
+#error LCD not chosen !
+#endif 
 }
 
 void ow_usart_setup(void)

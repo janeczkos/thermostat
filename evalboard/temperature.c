@@ -19,7 +19,7 @@ void getTemp_tmp102( uint8_t *pTemperature )
 static int readEEPROM_bmp180( int eeprom[BMP180_EEPROM_NUMREGS] )
 {
 	uint8_t buff[2*BMP180_EEPROM_NUMREGS] ;
-	int bytesRead ;
+	//int bytesRead ;
 	int i, j ;
 	uint8_t data;
 	
@@ -36,9 +36,10 @@ static int readEEPROM_bmp180( int eeprom[BMP180_EEPROM_NUMREGS] )
 
 }
 
+int readBEWord( uint8_t addr );
 int readBEWord( uint8_t addr ) {
   int  bms, bls ;
-  uint8_t data;
+  //uint8_t data;
   uint8_t dataRead[2];
   
   
@@ -67,12 +68,12 @@ void getTemp_bmp180( uint8_t *pTemperature )
 	/* EEPROM registers */
 	int ac1, ac2, ac3, ac4, ac5, ac6, b1, b2, mb, mc, md ;
 	/* Needed in the computation */
-	int b3, b4, b5, b6, b7, x1, x2 ;
+	int b3, b4, b5, b6, /*b7,*/ x1, x2 ;
 
 	/* The results */
 	int ut, t ;
 
-	double c ;
+	//double c ;
 	
 	rc = readEEPROM_bmp180( eePROM );
 	if ( rc != BMP180_EEPROM_NUMREGS ) {

@@ -1,6 +1,18 @@
 #include "pcd8544f1.h"
 #include "font.h"
 
+void nokia_printLine( uint32_t line_number, char *str ){
+    
+    char *p = str; 
+    lcd_send_command( 0x80 );
+    lcd_send_command( 0x40 | line_number );
+
+    while ( *p != 0 ) {
+        lcd_putChar( *p );
+        p++;
+    } 
+}
+
 void lcd_init(void)
 {
 	rcc_periph_clock_enable(RCC_SPI1);

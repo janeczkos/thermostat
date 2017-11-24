@@ -32,7 +32,7 @@
 #include "tmp102regs.h"
 
 //extern uint32_t button_pressed;
-static void printLine( uint32_t line_number, char *str );
+
 
 int main(void)
 {
@@ -50,10 +50,9 @@ int main(void)
 	usart_setup();
 	gpio_setup();
 	i2c_setup();
-	ow_usart_setup();
+	//ow_usart_setup();
     encoder_setup();
-    lcd_init();
-    lcd_reset();
+	lcd_setup();
     
     printLine( 0, "  Thermostat");
 
@@ -85,6 +84,11 @@ int main(void)
             old_button_pressed = button_pressed;
             
             getTemperature( temperature );
+            sprintf( buffer, "          ");
+            printLine( 3, buffer );
+            sprintf( buffer, "temperature:%d,%d",temperature[0],temperature[1]);
+            printLine( 3, buffer );
+            
         }
 		/*if ( OW_CheckPresence() ) {
                         OW_MeasureTemp();
@@ -102,14 +106,4 @@ int main(void)
 	return 0;
 }
 
-static void printLine( uint32_t line_number, char *str ){
-    
-    char *p = str; 
-    lcd_send_command( 0x80 );
-    lcd_send_command( 0x40 | line_number );
 
-    while ( *p != 0 ) {
-        lcd_putChar( *p );
-        p++;
-    } 
-}
